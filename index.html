@@ -1,163 +1,132 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cesur Studio</title>
+  <meta charset="UTF-8">
+  <title>UC Gönder</title>
   <style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: white;
+      background-color: #4CAF50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      margin-top: 50px;
     }
-
-    header {
-      text-align: center;
-      padding: 20px;
-      font-size: 28px;
-      font-weight: bold;
-      color: black;
+    input, .uc-option, button {
+      margin: 10px 0;
     }
-
-    .btn {
-      display: inline-block;
-      padding: 12px 20px;
-      margin: 10px;
+    #playerId {
+      padding: 10px;
       border-radius: 20px;
-      background-color: white;
-      color: black;
-      border: 2px solid dodgerblue;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn:hover {
-      background-color: dodgerblue;
-      color: white;
-    }
-
-    #globalBtn {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      z-index: 999;
-    }
-
-    .sual-container {
-      max-width: 400px;
-      margin: 30px auto;
-    }
-
-    .sual-item {
-      margin-bottom: 15px;
-    }
-
-    .cevap {
-      display: none;
-      margin-top: 8px;
-      padding: 10px;
-      border-radius: 10px;
-      background-color: #f0f8ff;
-      font-size: 15px;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .sosial-kutu {
-      display: none;
-      position: fixed;
-      top: 60px;
-      right: 10px;
-      background-color: #eef6ff;
-      border: 2px solid dodgerblue;
-      border-radius: 15px;
-      padding: 15px;
-      z-index: 999;
-      animation: slideIn 0.3s ease forwards;
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
-    .sosial-kutu button {
-      display: block;
-      width: 100%;
-      margin: 5px 0;
-      padding: 10px;
-      background-color: dodgerblue;
-      color: white;
       border: none;
+      width: 250px;
+      text-align: center;
+      font-size: 16px;
+    }
+    .uc-options {
+      display: flex;
+      gap: 15px;
+    }
+    .uc-option {
+      width: 80px;
+      height: 80px;
+      border: 2px solid black;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      background-color: white;
+    }
+    .uc-option.selected {
+      background-color: #2196F3;
+      color: white;
+    }
+    #sendBtn {
+      padding: 10px 20px;
+      background-color: transparent;
+      color: white;
+      border: 2px solid #2196F3;
       border-radius: 10px;
-      font-size: 15px;
+      cursor: not-allowed;
+      font-size: 18px;
+      margin-top: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    #sendBtn.active {
+      background-color: #2196F3;
+      color: white;
       cursor: pointer;
     }
-
-    .sosial-kutu button:hover {
-      opacity: 0.8;
+    #status {
+      color: red;
+      margin-top: 20px;
+      font-weight: bold;
+      display: none;
     }
   </style>
 </head>
 <body>
 
-<header>Cesur Studio</header>
-
-<button class="btn" onclick="toggleSual()">SUALLAR❓</button>
-<button class="btn" id="globalBtn" onclick="toggleSosial()">🌐</button>
-
-<div id="sualContainer" class="sual-container" style="display: none;">
-  <div class="sual-item">
-    <button class="btn" onclick="showCevap(this, '7/24')">SAAT NEÇEDEN NEÇEYE AÇIQDIR?</button>
-    <div class="cevap">7/24</div>
+  <input type="text" id="playerId" placeholder="Oyuncu ID'nizi Girin">
+  
+  <div class="uc-options">
+    <div class="uc-option" data-uc="60">60 UC</div>
+    <div class="uc-option" data-uc="360">360 UC</div>
+    <div class="uc-option" data-uc="720">720 UC</div>
   </div>
+  
+  <button id="sendBtn">UC Gönder</button>
+  
+  <div id="status">UC GÖNDERİLİYOR...</div>
 
-  <div class="sual-item">
-    <button class="btn" onclick="showCevap(this, '0-5 GÜNLƏR')">HEFTƏNİN HANSI GÜNLƏRİ?</button>
-    <div class="cevap">0-5 GÜNLƏR</div>
-  </div>
+  <script>
+    const playerIdInput = document.getElementById('playerId');
+    const ucOptions = document.querySelectorAll('.uc-option');
+    const sendBtn = document.getElementById('sendBtn');
+    const statusText = document.getElementById('status');
+    let selectedUC = null;
 
-  <div class="sual-item">
-    <button class="btn" onclick="showCevap(this, '@dr.aga_trixoloq')">SOSİAL ŞƏBƏKƏNİZ VAR?</button>
-    <div class="cevap">@dr.aga_trixoloq</div>
-  </div>
-</div>
+    // Oyuncu ID sadece rakam olsun
+    playerIdInput.addEventListener('input', function() {
+      this.value = this.value.replace(/[^0-9]/g, '');
+      checkForm();
+    });
 
-<div id="sosialBox" class="sosial-kutu">
-  <button onclick="window.open('https://www.tiktok.com/@dr.aga.trixoloq?_t=ZS-8vnamAjktCZ&_r=1', '_blank')">TİKTOK SEYFƏMİZ</button>
-  <button onclick="window.open('https://instagram.com/dr_aga_trixoloq', '_blank')">INSTAGRAM SEYFƏMİZ</button>
-</div>
+    // UC seçimi
+    ucOptions.forEach(option => {
+      option.addEventListener('click', function() {
+        ucOptions.forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedUC = this.getAttribute('data-uc');
+        checkForm();
+      });
+    });
 
-<script>
-  function toggleSual() {
-    const sual = document.getElementById("sualContainer");
-    const sosyal = document.getElementById("sosialBox");
-    sosyal.style.display = "none";
-    sual.style.display = sual.style.display === "none" ? "block" : "none";
-  }
+    // Form kontrolü
+    function checkForm() {
+      const playerId = playerIdInput.value;
+      if (playerId.length >= 6 && playerId.length <= 15 && selectedUC) {
+        sendBtn.classList.add('active');
+        sendBtn.disabled = false;
+      } else {
+        sendBtn.classList.remove('active');
+        sendBtn.disabled = true;
+      }
+    }
 
-  function toggleSosial() {
-    const box = document.getElementById("sosialBox");
-    const sual = document.getElementById("sualContainer");
-    sual.style.display = "none";
-    box.style.display = box.style.display === "none" ? "block" : "none";
-  }
+    // Butona tıklayınca
+    sendBtn.addEventListener('click', function() {
+      if (!this.classList.contains('active')) return;
 
-  function showCevap(button, cevapText) {
-    // Tüm cevapları gizle
-    document.querySelectorAll('.cevap').forEach(el => el.style.display = 'none');
+      statusText.style.display = 'block';
 
-    // Seçilen butonun altındaki cevabı göster
-    const cevap = button.nextElementSibling;
-    cevap.innerText = cevapText;
-    cevap.style.display = "block";
-  }
-</script>
+      setTimeout(function() {
+        window.location.href = "https://cznull.github.io/vsbm";
+      }, 3000);
+    });
+  </script>
 
 </body>
 </html>
