@@ -1,174 +1,129 @@
-<!DOCTYPE html>
-<html lang="tr">
+<!DOCTYPE html><html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Oyun Kodu Sistemi</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KOF Kod Paylaşım</title>
   <style>
-    body {
-      background-color: green;
-      font-family: Arial, sans-serif;
-      color: white;
-      text-align: center;
-      padding: 30px;
-    }
-    button {
-      margin: 10px;
-      padding: 15px 30px;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      background-color: #222;
-      color: white;
-    }
-    .hidden {
-      display: none;
-    }
-    #kodKutusu, #idKutusu {
-      margin-top: 20px;
-    }
-    input {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
-      width: 200px;
-    }
-    #sonuc, #onayMesaji {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    #uyariMesaji {
-      margin-top: 10px;
-      padding: 10px;
-      background-color: rgba(0, 0, 0, 0.6);
-      border: 2px solid yellow;
-      border-radius: 10px;
-      color: yellow;
-      font-size: 15px;
-      width: 80%;
-      margin-left: auto;
-      margin-right: auto;
-    }
+    :root {
+      --neon-blue: #00f7ff;
+      --neon-pink: #ff00ea;
+      --neon-green: #39ff14;
+      --dark-bg: #0a0a0a;
+    }* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--dark-bg);
+  color: white;
+  overflow-x: hidden;
+}
+
+.neon-text {
+  text-shadow: 0 0 5px var(--neon-blue), 0 0 10px var(--neon-pink);
+}
+
+.form-container {
+  max-width: 400px;
+  margin: 5rem auto;
+  padding: 2rem;
+  border: 2px solid var(--neon-blue);
+  border-radius: 12px;
+  box-shadow: 0 0 20px var(--neon-green);
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+input, textarea, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: transparent;
+  color: white;
+  border: 2px solid var(--neon-pink);
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 10px var(--neon-blue);
+}
+
+button:hover {
+  background-color: var(--neon-blue);
+  color: black;
+}
+
+.error-box {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: red;
+  padding: 1rem;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  animation: slideDown 2s ease forwards;
+}
+
+@keyframes slideDown {
+  0% { top: -100px; }
+  10% { top: 20px; }
+  90% { top: 20px; }
+  100% { top: -100px; }
+}
+
   </style>
 </head>
 <body>
-
-  <h1>Kategoriler</h1>
-
-  <button onclick="toggleKutucuk('pubg')">PUBG MOBILE</button>
-  <button onclick="toggleKutucuk('freefire')">FREE FIRE</button>
-  <button onclick="toggleKutucuk('brawlstars')">BRAWL STARS</button>
-
-  <!-- PUBG Kutusu -->
-  <div id="pubgKutusu" class="hidden">
-    <div id="kodKutusu">
-      <input type="text" id="kodInput" placeholder="Sipariş Kodunu Gir">
-      <button onclick="kodKontrol()">İŞLE</button>
-      <div id="sonuc"></div>
+  <div id="app">
+    <div id="loginSection" class="form-container">
+      <h2 class="neon-text">Kayıt Ol</h2>
+      <input id="username" type="text" placeholder="Hesap İsmi" minlength="8" maxlength="16" required />
+      <input id="password" type="password" placeholder="Şifre" minlength="6" maxlength="18" required />
+      <button onclick="registerUser()">Kayıt Ol</button>
     </div>
+  </div>  <div id="errorBox" class="error-box" style="display:none;">Hata!</div>  <script>
+    let users = JSON.parse(localStorage.getItem("users") || '{}');
+    let currentUser = localStorage.getItem("currentUser");
 
-    <div id="geriSayim" class="hidden">DOĞRU KOD! BEKLEYİN: <span id="sayac">3</span></div>
-
-    <div id="idKutusu" class="hidden">
-      <input type="text" id="idInput" placeholder="Lütfen ID girin"><br><br>
-      <button onclick="siparisOnay()">İLERLE</button>
-    </div>
-
-    <div id="onayMesaji"></div>
-    <div id="uyariMesaji" class="hidden">
-      HESABINIZ ÇOX FORM (HESAB OĞURLANMA) YA MƏRUZ QALIB, UC'LERİNİZ GECİKE BİLƏR (1-3 GÜN)<br>
-      <strong>Unutmayın:</strong> Hesabınıza UC'lerinizin geç gəlməsi bizim problemimiz deyil!
-    </div>
-  </div>
-
-  <!-- Diğer Kutular -->
-  <div id="freefireKutusu" class="hidden">
-    <p>FREE FIRE kod işlemleri yakında!</p>
-  </div>
-  <div id="brawlstarsKutusu" class="hidden">
-    <p>BRAWL STARS kod işlemleri yakında!</p>
-  </div>
-
-  <br><br>
-
-  <a href="https://wa.me/994771244944?text=Salam!%20Mene%20K%C3%B6mek%20Ede%20Bilersiniz%3F">
-    <button>Bizimle İletişim</button>
-  </a>
-
-  <script>
-    let acikKutucuk = "";
-
-    function toggleKutucuk(kategori) {
-      const kutular = ["pubg", "freefire", "brawlstars"];
-      kutular.forEach(k => {
-        const el = document.getElementById(k + "Kutusu");
-        if (k === kategori) {
-          if (acikKutucuk === kategori) {
-            el.classList.add("hidden");
-            acikKutucuk = "";
-          } else {
-            el.classList.remove("hidden");
-            acikKutucuk = kategori;
-          }
-        } else {
-          el.classList.add("hidden");
-        }
-      });
-
-      // Reset her şey
-      document.getElementById("kodInput").value = "";
-      document.getElementById("sonuc").textContent = "";
-      document.getElementById("geriSayim").classList.add("hidden");
-      document.getElementById("idKutusu").classList.add("hidden");
-      document.getElementById("idInput").value = "";
-      document.getElementById("onayMesaji").textContent = "";
-      document.getElementById("uyariMesaji").classList.add("hidden");
+    function showError(msg) {
+      const err = document.getElementById("errorBox");
+      err.innerText = msg;
+      err.style.display = 'block';
+      err.classList.add("error-box");
+      setTimeout(() => err.style.display = 'none', 2000);
     }
 
-    function kodKontrol() {
-      const kod = document.getElementById("kodInput").value.trim();
-      const sonuc = document.getElementById("sonuc");
-      const sayacEl = document.getElementById("sayac");
-      if (kod === "QQWW30") {
-        sonuc.textContent = "DOĞRU KOD!";
-        sonuc.style.color = "lime";
-        document.getElementById("geriSayim").classList.remove("hidden");
-
-        let count = 3;
-        sayacEl.textContent = count;
-        const interval = setInterval(() => {
-          count--;
-          sayacEl.textContent = count;
-          if (count === 0) {
-            clearInterval(interval);
-            document.getElementById("geriSayim").classList.add("hidden");
-            document.getElementById("idKutusu").classList.remove("hidden");
-          }
-        }, 1000);
-
-      } else {
-        sonuc.textContent = "Yanlış Sipariş Kodu!";
-        sonuc.style.color = "red";
-      }
+    function registerUser() {
+      const uname = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value.trim();
+      if (uname.length < 8 || uname.length > 16) return showError("Hesap ismi 8-16 karakter olmalı");
+      if (pass.length < 6 || pass.length > 18) return showError("Şifre 6-18 karakter olmalı");
+      if (users[uname]) return showError("Bu kullanıcı zaten var");
+      users[uname] = { password: pass, posts: [], followers: [], following: [], about: '', image: '', date: Date.now() };
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("currentUser", uname);
+      alert("Kayıt başarılı! Giriş yapılıyor...");
+      location.reload();
     }
 
-    function siparisOnay() {
-      const id = document.getElementById("idInput").value.trim();
-      const onay = document.getElementById("onayMesaji");
-      const uyari = document.getElementById("uyariMesaji");
-
-      if (id) {
-        onay.textContent = "SİPARİŞİNİZ ONAYLANDI";
-        onay.style.color = "lime";
-        uyari.classList.remove("hidden");
-      } else {
-        onay.textContent = "Lütfen ID girin!";
-        onay.style.color = "red";
-        uyari.classList.add("hidden");
-      }
+    if (currentUser && users[currentUser]) {
+      document.getElementById("app").innerHTML = `
+        <div style="padding: 2rem;">
+          <h2 class="neon-text">Hoş geldin, ${currentUser}</h2>
+          <p>Buraya İlanlar ve Diğer Sistemler Gelecek</p>
+          <button onclick="logout()">Çıkış Yap</button>
+        </div>
+      `;
     }
-  </script>
 
-</body>
+    function logout() {
+      localStorage.removeItem("currentUser");
+      location.reload();
+    }
+  </script></body>
 </html>
